@@ -1,0 +1,14 @@
+# Fichiers Python compilés
+__pycache__/
+*.pyc
+
+# Cache des tests
+.pytest_cache/
+
+# Config éditeur
+.vscode/
+.idea/
+
+# Environnement virtuel (si tu en crées un)
+venv/
+.venv/
