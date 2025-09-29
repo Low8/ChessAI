@@ -9,6 +9,11 @@ class Ai:
 
 class Random_ai:
     def choose_move(self, color, board):
+
+        # Ici on test juste une case de départ et une case d'arriver aléatoirment jusquà trouver:
+        # - Pour le départ une piece de la couleur du joueur
+        # - Pour l'arriver une case qui se trouve dans les légal move de cette piece
+
         is_good_color = False
         is_valid_move = False
 
@@ -38,6 +43,10 @@ class Random_ai:
 
 class MinMax_ai:
     def evaluate(self, color, board):
+
+        # Fonction permettant d'évaluer le tableau en fonction d'une couleur
+        # On ajoute les points de la piece si elle est de la couleur voulu sinon on les soustrer
+
         points = {
             "p" : 1,
             "n" : 3,
@@ -89,8 +98,20 @@ class MinMax_ai:
 
                         if score > current_best_score:
                             current_best_score = score
-                            best_move = [x, y, a, b]
+                            best_move = [[x, y, a, b]]
+                        elif score == current_best_score:
+                            best_move.append([x, y, a, b])
+                            
         
+        if best_move:
+            random_best_move = random.choice(best_move)
+
+            start_position = (random_best_move[0], random_best_move[1])
+            end_position = (random_best_move[2], random_best_move[3])
+
+            return start_position, end_position
+
+
         if not best_move:
             random_ai = Random_ai()
             return random_ai.choose_move(color, board)

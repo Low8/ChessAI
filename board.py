@@ -61,6 +61,9 @@ class Board:
         
         old_piece = self.grid[x][y].piece
         self.grid[x][y].piece = piece
+
+        if start_position:
+            self.grid[start_position[0]][start_position[1]].piece = None
         
         # Si c'est un pion qui se déplace de 2 cases, définir la cible de prise en passant
         if piece and start_position and isinstance(piece, Pawn):

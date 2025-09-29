@@ -86,7 +86,7 @@ class Controller:
         )
         
         # Mettre à jour l'état de la pièce et du plateau
-        self.board.grid[start_position[0]][start_position[1]].piece = None
+        
         if hasattr(piece, 'first_move'):
             piece.first_move = False
             
