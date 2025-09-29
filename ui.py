@@ -259,7 +259,7 @@ class Ui:
 
     def handle_ai(self):
         if self.controller.current_player.is_ai and not self.paused and not self.controller.game_over:
-            pygame.time.delay(200)
+            pygame.time.delay(700)
             self.controller.handle_ai()
 
 
