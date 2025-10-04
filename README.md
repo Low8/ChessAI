@@ -4,16 +4,14 @@
 ---
 
 
-## 🧠 Concepts Clés
-
-### 1. Algorithme Min-Max
+# 1. Algorithme Min-Max
 **Principe** : L’IA explore tous les coups possibles en alternant entre :
 - **Niveau Max** (elle cherche à maximiser son score).
 - **Niveau Min** (l’adversaire cherche à minimiser son score).
 
 ![alt text](pct_README/MinMax.png)
 
-On a ici un arbre binaire de profondeur 5, c'est à dire que l'ia à le choix entre deux coup à chaque fois et voit 5 coup en avance. Le numéro dans les bulle correspond au résultat de la fonction d'évaluation calculé avec la fonction dévaluation que j'expliquerer après. A chaque fois que l'****adversaire** (joueur) joue on fait remonter le **pire** score ainsi on évite que l'ia fasse un coup **qui l'a mettrait par la suite en danger**. Mais quand c'est à l'ia (ordi) de jouer on fait remonter le **meilleur score**. D'ou le nom algorythme MinMax !
+On a ici un arbre binaire de profondeur 5, c'est à dire que l'ia à le choix entre deux coup à chaque fois et voit 5 coup en avance. Le numéro dans les bulle correspond au résultat de la fonction d'évaluation calculé avec la fonction dévaluation que j'expliquerer après. A chaque fois que l'**adversaire** (joueur) joue on fait remonter le **pire** score ainsi on évite que l'ia fasse un coup **qui l'a mettrait par la suite en danger**. Mais quand c'est à l'ia (ordi) de jouer on fait remonter le **meilleur score**. D'ou le nom algorythme MinMax !
 
 
 ## Exemple pour un morpion
@@ -25,7 +23,7 @@ Avec un morpions on a plus un arbre bianire le nombre de possibilité dépend de
 On voit ainsi que faire remonter le min à permis de ne pas choisir un coup qui aurait causé la défaite. Et faire remonter le max permet de voir les cas de victoire. On peut égelment changer la fonction d'évaluation pour avantager les victoires proches par exemple.
 
 
-# Exemple de code pour un morpion** :
+### Exemple de code pour un morpion :
 
 ```python
 def minmax(plateau: List[List[str]], profondeur: int, est_max_joueur: bool) -> int:
@@ -57,12 +55,12 @@ def minmax(plateau: List[List[str]], profondeur: int, est_max_joueur: bool) -> i
 
 On utilise la **récursivité** pour parcourir les plateaux de simulation à une profondeur voulu. Une fois arriver à la profondeur voulu on **évalue** puis on fait remonter le score et on le **compare** avec les autres position de son niveau grace à la boucle for. A chaque fois en faisant attention de si il s'agit d'**un tour min ou d'un tour max** !
 
-**Mon implémentation** :
+## Mon implémentation pour le jeu d'echec** :
 - Profondeur limitée à **2 coups** (pour éviter l’explosion combinatoire).
 - Utilisation de **récursivité** avec une fonction `minMax(self, color, board, deep, IS_MAX = True)`.
 
 
-### 1. Fonction d'évaluation
+# 2. Fonction d'évaluation
 La fonction évaluation est au coeur de prise de déscision d'un ia. Elle aura pour unique but de retourné un score évaluant le plateau entier en fonction de la couleur de l'ia.
 Pour les echecs cela peut être une évaulation selon :
 - la **valeur** des pièces
@@ -73,7 +71,7 @@ Pour les echecs cela peut être une évaulation selon :
 
 On attribut une valeur selon la **force des pièces**. Une dame est plus importante qu'un pion par exemple
 
-exemple d'attribution de points selon la valeur
+### exemple d'attribution de points selon la valeur
 ```python
 points = {
             "p": 100,
@@ -90,7 +88,7 @@ points = {
 Ici il sera question de donnée manuellement un **score** pour chaque cases du tableau importantes à maitrisées pour une **pièce donnée**.
 Par exemple pour un **pion**, il sera important de maitrisée le **centre** ou alors de s'**aporocher des dernières lignes** pour faire une dame. On va donc donner un nombre plus important de point à ces cases qu'à des case moins avantageuse comme celles qui **enlèvent la protection du roi**, celle-ci auront même un **malus**.
 
-# Exemple de tableau de points de positionnement d'un pion
+### Exemple de tableau de points de positionnement d'un pion
 ```python
 pawn_position_bonus = [
             [0,  0,  0,  0,  0,  0,  0,  0],  # Ligne 0 (promotion)
@@ -103,7 +101,7 @@ pawn_position_bonus = [
             [0,  0,  0,  0,  0,  0,  0,  0]    # Ligne 7
         ]
 ```
-# Exemple de tableau de points de positionnement d'un cavalier
+### Exemple de tableau de points de positionnement d'un cavalier
 ```python
 knight_position_bonus = [
             [-50,-40,-30,-30,-30,-30,-40,-50],
@@ -119,7 +117,7 @@ knight_position_bonus = [
 Son but à lui sera de maitriser le plus de case possible
 
 Plus une pièce **maitrise de case plus elle est puissante** au echec. J'ai donc fait un **calul du total de coup jouable** et avantagé une ia qui a plein de possibilité. Elle sera par contre pénalisé si elle laisse l'adversaire se développer.
-# Exemple de code récompansant les pièces dégagées
+### Exemple de code récompansant les pièces dégagées
 ```python
 # Bonus pour la mobilité (nombre de coups légaux) Une piece avec beaucoup 
 # de posibilité de déplacement sera plus forte qu'une avec moins
