@@ -384,6 +384,16 @@ class Board:
         self.grid[capture_row][capture_col].piece = None
         
         return captured_pawn
+    
+    def get_all_playable_pieces(self, color):
+        return [
+            (x, y)
+            for x in range(8)
+            for y in range(8)
+            if self.grid[x][y].piece
+            and self.grid[x][y].piece.color == color
+            and self.get_legal_moves([x, y])
+        ]
 
     def check_game_status(self, color):
         """Vérifie l'état du jeu pour un joueur donné"""
