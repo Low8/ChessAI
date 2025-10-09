@@ -78,7 +78,6 @@ class Pawn(Piece):
                     
                 # Cas 2: Prise en passant - vérification simplifiée
                 if board.en_passant_target and (end_row, end_col) == board.en_passant_target:
-                    print(f"Validating en passant at {end_row}, {end_col}")
                     return True
                     
                 return False

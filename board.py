@@ -6,6 +6,7 @@ class Board:
         self.grid = [[None for _ in range(8)] for _ in range(8)]
         self.generate_board()
         self.en_passant_target = None  # Position où la prise en passant est possible
+        self.nb_moves = 0
 
     def generate_board(self):
         for x in range(8):
@@ -74,33 +75,32 @@ class Board:
 
                 en_passant_row = (start_row + x) // 2
                 self.en_passant_target = (en_passant_row, y)
-                print(f"En passant target set to: {self.en_passant_target}")
             else:
                 self.en_passant_target = None
         else:
             self.en_passant_target = None
-            
+        
+        self.nb_moves += 1
+
         return old_piece
 
     def undo_move(self, start_pos, end_pos, captured_piece):
-        """
-        Annule un coup :
-        - Replace la pièce à sa position initiale
-        - Remet la pièce capturée (s'il y en avait une)
-        - Réinitialise la cible en_passant
-        """
-        start_x, start_y = start_pos
-        end_x, end_y = end_pos
+        """Annule un coup simulé proprement (pour MinMax)"""
+        sx, sy = start_pos
+        ex, ey = end_pos
     
-        # Déplace la pièce de end vers start
-        moved_piece = self.grid[end_x][end_y].piece
-        self.change_piece(start_x, start_y, moved_piece)
+        moved_piece = self.grid[ex][ey].piece
     
-        # Replace la pièce capturée à end (ou None si pas de capture)
-        self.change_piece(end_x, end_y, captured_piece)
+        self.grid[sx][sy].piece = moved_piece
+        self.grid[ex][ey].piece = captured_piece
     
-        # Réinitialise la cible de prise en passant
+        if moved_piece:
+            moved_piece.position = (sx, sy)
+    
         self.en_passant_target = None
+        self.nb_moves -= 1
+
+
     
     def is_cell_attacked(self, position, attacking_color):
         # attacking color = color que l'on veut attaquer
@@ -192,35 +192,6 @@ class Board:
 
         return is_in_check
     
-    def is_checkmate(self, king_color):
-        # On regarde si le roi est en echec
-        # puis on cherche si une piece à au moins un coup valide
-        # si aucune piece n'en a alors on retourne vrai
-        if not self.is_in_check(king_color):
-            return False
-        
-        for r in range(8):
-            for c in range(8):
-                piece = self.grid[r][c].piece
-                if piece and king_color == piece.color:
-                    legals_move = self.get_legal_moves((r, c))
-                    if legals_move != []:
-                        return False
-        return True
-    
-    def is_stalemate(self, king_color):
-        # On cherche si une piece à au moins un coup valide
-        # si aucune piece n'en a alors on retourne vrai
-        # on ne regarde pas si le roi est en echec à la base
-        
-        for r in range(8):
-            for c in range(8):
-                piece = self.grid[r][c].piece
-                if piece and king_color == piece.color:
-                    legals_move = self.get_legal_moves((r, c))
-                    if legals_move != []:
-                        return False
-        return True
     
     def pawn_in_last_row(self, color):
         row = 0 if color == "w" else 7
@@ -392,16 +363,32 @@ class Board:
             for y in range(8)
             if self.grid[x][y].piece
             and self.grid[x][y].piece.color == color
-            and self.get_legal_moves([x, y])
         ]
 
+    def has_any_legal_move(self, color):
+        """
+        s'arrête dès qu'on trouve UN seul coup légal
+        """
+        for r in range(8):
+            for c in range(8):
+                piece = self.grid[r][c].piece
+                if piece and piece.color == color:
+                    # ✅ Vérifier seulement les mouvements possibles de base
+                    possible_moves = piece.get_possible_moves((r, c))
+                    for move in possible_moves:
+                        # ✅ Vérifier rapidement si le move est valide
+                        if self.is_move_valid((r, c), move):
+                            # ✅ Dès qu'on trouve UN coup, on arrête !
+                            return True
+        return False
+
     def check_game_status(self, color):
-        """Vérifie l'état du jeu pour un joueur donné"""
-        if self.is_checkmate(color):
-            return "checkmate"
-        elif self.is_stalemate(color):
-            return "stalemate"
-        else:
-            return "ongoing"
+        """Version OPTIMISÉE"""
+        is_check = self.is_in_check(color)
+        has_moves = self.has_any_legal_move(color)
+
+        if not has_moves:
+            return "checkmate" if is_check else "stalemate"
+        return "check" if is_check else "ongoing"
 
     

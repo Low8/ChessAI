@@ -8,8 +8,8 @@ class Controller:
         self.board = board if board else Board()
 
         ## Création des deux joueur
-        self.white_player = Player("w", "joueur blanc", True, "minmax")
-        self.black_player = Player("b", "joueur noir", True, "random")
+        self.white_player = Player("w", "joueur blanc")
+        self.black_player = Player("b", "joueur noir", True, "minmax")
         self.winner = None
 
         self.game_over = False
@@ -38,7 +38,6 @@ class Controller:
         """
         Délègue au plateau la vérification de la validité du mouvement
         """
-        print(f"Checking move from {start_position} to {end_position}")
         return self.board.is_move_valid(start_position, end_position)
 
     def is_path_clear(self, start_position, end_position):
@@ -56,13 +55,11 @@ class Controller:
         """
         # Vérifier si le mouvement est valide
         if not self.is_valid_move(start_position, end_position):
-            print(f"Mouvement invalide de {start_position} à {end_position}")
             return False
             
         # Récupérer la pièce à déplacer
         piece = self.board.grid[start_position[0]][start_position[1]].piece
         if not piece:
-            print(f"Aucune pièce à la position {start_position}")
             return False
             
         # Gérer le roque
@@ -159,10 +156,11 @@ class Controller:
         elif game_status == "stalemate":
             self.handle_stalemate()
 
+        print(f"Coup numéro {self.board.nb_moves}")
+
     def check_for_pawn_promotion(self):
         # on mets à jour les attribut de promotion si il y a un cas de promotion
         promotion_position = self.board.pawn_in_last_row(self.current_player.color)
-        print("checking pawn promotion")
 
         if promotion_position:
             self.promotion_position = promotion_position
@@ -175,7 +173,6 @@ class Controller:
     def promote_pawn(self, new_piece_type):
         """Coordonne la promotion d'un pion en déléguant au modèle"""
         if not self.promotion_position:
-            print("Pas de position de promotion définie")
             return False
         
         # Déléguer au modèle la promotion effective
@@ -185,10 +182,8 @@ class Controller:
             # Gestion de l'état du contrôleur
             self.promotion_available = False
             self.promotion_position = None
-            print("Promotion réussie")
             return True
         else:
-            print("Échec de la promotion")
             return False
 
     def handle_checkmate(self):
@@ -206,11 +201,10 @@ class Controller:
         correct_move = False
 
         # Obtenir le mouvement choisi par l'IA
-        start_position, end_position = self.current_player.ai_agent.choose_move(self.current_player.color, self.board)
-        # Vérifier si un mouvement valide a été trouvé
+        start_position, end_position = self.current_player.ai_agent.choose_move(self.current_player.color, self.board, depth=4, use_parallel=True)
         if start_position is None or end_position is None:
             print("L'IA n'a pas pu trouver de mouvement valide")
-            self.next_turn()  # Passer le tour
+            self.next_turn()
             return
         
         print(f"IA joue: {start_position} -> {end_position}")

@@ -1,5 +1,9 @@
-import pygame
 import os
+
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1"
+import pygame
+
+import threading
 from board import Board
 from controller import Controller
 
@@ -43,6 +47,9 @@ class Ui:
 
         # Pause boolean
         self.paused = False
+
+        self.ai_thinking = False
+        self.ai_thread = None
 
     def load_pieces(self):
         path = os.path.join("assets", "other_pieces")
@@ -94,10 +101,8 @@ class Ui:
                                 position[1] - self.board_y_offset
                             )
                             self.controller.handle_click(adjusted_position, self.cell_width, self.cell_height)
-                            print(f"click {adjusted_position}")
                     # endif
                         
-
         return True
     
                 
@@ -149,7 +154,6 @@ class Ui:
         # on affiche les bouton si il y a un cas possible détecté
         if not self.controller.current_player.is_ai:
             if self.controller.promotion_available:
-                print("Tentative d'affichage des options de promotion")
                 self.draw_promotion_options()
 
 
@@ -207,6 +211,16 @@ class Ui:
                         small_image = pygame.transform.scale(self.pieces_load[image_name], (int(self.captured_cell_width), int(self.captured_cell_height)))
                         self.screen.blit(small_image, (x, y))
 
+        if self.ai_thinking:
+            font = pygame.font.SysFont("Arial", 28, bold=True)
+            text = font.render("IA réfléchit...", True, (255, 215, 0))
+            
+            # Fond semi-transparent pour le texte
+            text_bg = pygame.Surface((text.get_width() + 20, text.get_height() + 10), pygame.SRCALPHA)
+            text_bg.fill((0, 0, 0, 180))
+            
+            self.screen.blit(text_bg, (10, 10))
+            self.screen.blit(text, (20, 15))
 
         
         pygame.display.flip()
@@ -258,10 +272,18 @@ class Ui:
 
 
     def handle_ai(self):
-        if self.controller.current_player.is_ai and not self.paused and not self.controller.game_over:
-            pygame.time.delay(700)
-            self.controller.handle_ai()
+    # Lance l'IA dans un thread SEULEMENT si elle n'est pas déjà en train de réfléchir
+        if self.controller.current_player.is_ai and not self.paused and not self.controller.game_over and not self.ai_thinking:
+            self.ai_thinking = True
 
+            # Lancer l'IA dans un thread séparé
+            self.ai_thread = threading.Thread(target=self._ai_compute)
+            self.ai_thread.start()
+
+    def _ai_compute(self):
+        """Fonction exécutée dans le thread de l'IA"""
+        self.controller.handle_ai()
+        self.ai_thinking = False
 
     def run(self):
         clock = pygame.time.Clock()
